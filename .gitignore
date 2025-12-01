@@ -1,0 +1,73 @@
+# Байткод и кэш Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyd
+*.pyo
+
+# Кэш и временные каталоги Python-инструментов
+.pytest_cache/
+.mypy_cache/
+.pytype/
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+.tox/
+.nox/
+.eggs/
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+*.egg
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+.env.bak
+
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Локальные базы и артефакты векторного хранилища
+chat_memory.db
+vectorstore/
+# если нужно оставить структуру директории, но не бинарные данные, можно использовать:
+# vectorstore/chroma_db/
+# vectorstore/chroma_db/**/*.bin
+# vectorstore/chroma_db/chroma.sqlite3
+
+# Настройки и секреты
+.env
+
+# IDE и редакторы
+.idea/
+.vscode/
+.vscode-*/
+.cursor/
+*.iml
+*.code-workspace
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Jupyter/ноутбуки (на всякий случай)
+.ipynb_checkpoints/
+
+# OS / прочее
+*.orig
+*.rej
+
+# Git
+# Сам .gitignore отслеживать не запрещаем

@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"   # порт для Ollama
+    volumes:
+      - /srv/ollama_models:/root/.ollama   # модели хранятся на сервере
+
+  telegram-bot:
+    build: .
+    container_name: telegram-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - ollama
+    volumes:
+      - /srv/bot_data/chat_memory.db:/app/chat_memory.db
+      - /srv/bot_data/vectorstore:/app/vectorstore
+    command: ["python", "bot.py"]

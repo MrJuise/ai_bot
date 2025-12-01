@@ -1,0 +1,32 @@
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Виртуальное окружение
+venv/
+
+# Локальные базы и векторное хранилище
+chat_memory.db
+vectorstore/chroma_db/
+
+# Конфиги и секреты
+.env
+.env.*
+
+# Логи
+*.log
+
+# IDE и системные файлы
+.idea/
+.vscode/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+Thumbs.db
+
+# Git-артефакты
+.git
+.gitignore
+
+
