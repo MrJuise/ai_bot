@@ -1,3 +1,22 @@
+# Настройка бота для подключения к ollama
+_Exported on 03.12.2025 at 19:22:58 GMT+3 from Cursor (1.7.54)_
+
+---
+
+**User**
+
+нужно чтоб бот связывался с ollama всегда по base_url="http://ollama:11434"
+а не по локалхост (в vector_store.py я уже внес правки)
+
+---
+
+**Cursor**
+
+Я сначала посмотрю `vector_store.py`, `bot.py` и `docker-compose.yml`, чтобы найти все места, где ollama вызывается через localhost, затем изменю их на `http://ollama:11434` и проверю на ошибки. После правок кратко опишу, что именно поменял.
+
+Сейчас настрою использование `http://ollama:11434` в основном коде бота через клиент Ollama и проверю файл на ошибки.
+
+```python
 import os
 import asyncio
 import json
@@ -432,3 +451,61 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+```
+
+### Что сделал
+
+- В `vector_store.py` уже используется `base_url="http://ollama:11434"` для `OllamaEmbeddings` — там ничего менять не нужно.
+- В `bot.py` добавил явный клиент Ollama с нужным хостом и перевёл все вызовы на него:
+
+```startLine:endLine:bot.py
+load_dotenv()
+
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+
+# Явно указываем base_url для доступа к сервису Ollama внутри docker-compose
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+ollama_client = ollama.Client(host=OLLAMA_BASE_URL)
+```
+
+```startLine:endLine:bot.py
+async def call_ollama(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Запускает обращение к Ollama в отдельном потоке, чтобы не блокировать event-loop."""
+    return await asyncio.to_thread(
+        lambda: ollama_client.chat(
+            model=OLLAMA_MODEL,
+            messages=messages,
+            tools=TOOL_SCHEMAS,
+        )
+    )
+```
+
+Теперь бот **всегда** ходит к Ollama по `http://ollama:11434` (можно переопределить через переменную окружения `OLLAMA_BASE_URL` при необходимости).
+
+```python
+load_dotenv()
+
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1:8b")
+
+# Явно указываем base_url для доступа к сервису Ollama внутри docker-compose
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://ollama:11434")
+ollama_client = ollama.Client(host=OLLAMA_BASE_URL)
+```
+
+```python
+async def call_ollama(messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Запускает обращение к Ollama в отдельном потоке, чтобы не блокировать event-loop."""
+    return await asyncio.to_thread(
+        lambda: ollama_client.chat(
+            model=OLLAMA_MODEL,
+            messages=messages,
+            tools=TOOL_SCHEMAS,
+        )
+    )
+```
+

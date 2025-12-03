@@ -6,19 +6,36 @@ services:
     container_name: ollama
     restart: unless-stopped
     ports:
-      - "11434:11434"   # порт для Ollama
+      - "11434:11434"
     volumes:
-      - /srv/ollama_models:/root/.ollama   # модели хранятся на сервере
+      # Хранилище моделей — сохраняется между перезапусками
+      - /srv/ollama_models:/root/.ollama
+    environment:
+      OLLAMA_NUM_THREADS: "4"        # Опционально: ускоряет работу CPU
+      OLLAMA_KEEP_ALIVE: "5m"        # Держит модель в памяти для скорости
+    # Подгрузка моделей прямо при старте (автономность!)
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "
+      ollama serve &
+      sleep 60 &&
+      ollama pull llama3.1:8b || true &&
+      ollama pull nomic-embed-text || true &&
+      wait
+      "
 
   telegram-bot:
-    build: .
+    image: mrjuise/tg_bot_mvp:latest
     container_name: telegram-bot
     restart: unless-stopped
     env_file:
       - .env
     depends_on:
       - ollama
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
     volumes:
-      - /srv/bot_data/chat_memory.db:/app/chat_memory.db
-      - /srv/bot_data/vectorstore:/app/vectorstore
+      # Данные, которые должны сохраняться на сервере
+      - /srv/bot_data:/app/data
     command: ["python", "bot.py"]

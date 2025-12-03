@@ -39,8 +39,7 @@ env/
 *.bak
 
 # Локальные базы и артефакты векторного хранилища
-chat_memory.db
-vectorstore/
+app/
 # если нужно оставить структуру директории, но не бинарные данные, можно использовать:
 # vectorstore/chroma_db/
 # vectorstore/chroma_db/**/*.bin
